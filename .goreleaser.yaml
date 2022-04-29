@@ -1,0 +1,55 @@
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: r53tool
+    env:
+      - CGO_ENABLED=0
+    main: ./cmd/r53tool
+    binary: r53tool
+    goos:
+      - linux
+      - windows
+      - darwin
+    ldflags:
+      - -s -w -X github.com/pedrokiefer/route53copy/cmd.Version={{.Version}} -X github.com/pedrokiefer/route53copy/cmd.Commit={{.Commit}} -X github.com/pedrokiefer/route53copy/cmd.BuildDate={{ .CommitDate }}
+
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore"
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+      - go mod tidy
+  groups:
+    - title: "New Features"
+      regexp: "^.*feat:+.*$"
+      order: 0
+    - title: "Bug fixes"
+      regexp: "^.*fix:+.*$"
+      order: 10
+    - title: "Refactors"
+      regexp: "^.*refactor:+.*$"
+      order: 20
+    - title: Other work
+      order: 999
