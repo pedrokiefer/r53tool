@@ -20,6 +20,12 @@ import (
 type RouteManager struct {
 	cli     *route53.Client
 	domains *route53domains.Client
+
+	o *RouteManagerOptions
+}
+
+type RouteManagerOptions struct {
+	NoWait bool
 }
 
 type HostedZoneNotFound struct {
@@ -30,7 +36,7 @@ func (e *HostedZoneNotFound) Error() string {
 	return fmt.Sprintf("hosted zone not found: %s", e.Zone)
 }
 
-func NewRouteManager(ctx context.Context, profile string) *RouteManager {
+func NewRouteManager(ctx context.Context, profile string, rmo *RouteManagerOptions) *RouteManager {
 	if r := os.Getenv("AWS_REGION"); r == "" {
 		os.Setenv("AWS_REGION", "us-east-1")
 	}
@@ -51,9 +57,17 @@ func NewRouteManager(ctx context.Context, profile string) *RouteManager {
 	if err != nil {
 		panic(err)
 	}
+
+	o := &RouteManagerOptions{NoWait: false}
+	if rmo != nil {
+		o = rmo
+	}
+
 	return &RouteManager{
 		cli:     route53.NewFromConfig(cfg),
 		domains: route53domains.NewFromConfig(cfg),
+
+		o: o,
 	}
 }
 
@@ -128,6 +142,9 @@ func (r *RouteManager) CreateZone(ctx context.Context, domain string) (rtypes.Ho
 }
 
 func (r *RouteManager) WaitForChange(ctx context.Context, changeId string, maxWait time.Duration) error {
+	if r.o.NoWait {
+		return nil
+	}
 	waiter := route53.NewResourceRecordSetsChangedWaiter(r.cli, func(rrscwo *route53.ResourceRecordSetsChangedWaiterOptions) {
 		rrscwo.MinDelay = 15 * time.Second
 	})

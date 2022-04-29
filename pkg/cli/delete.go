@@ -10,7 +10,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	rtypes "github.com/aws/aws-sdk-go-v2/service/route53/types"
-	rdtypes "github.com/aws/aws-sdk-go-v2/service/route53domains/types"
 	"github.com/manifoldco/promptui"
 	"github.com/pedrokiefer/route53copy/pkg/dig"
 	"github.com/pedrokiefer/route53copy/pkg/dns"
@@ -28,7 +27,9 @@ func init() {
 }
 
 func (a *deleteApp) Run(ctx context.Context) error {
-	srcManager := dns.NewRouteManager(ctx, a.Profile)
+	srcManager := dns.NewRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{
+		NoWait: noWait,
+	})
 
 	zone, err := srcManager.GetHostedZone(ctx, a.Domain)
 	if err != nil {
@@ -142,13 +143,6 @@ func newDeleteCommand() *cobra.Command {
 	return c
 }
 
-func nsToString(ns []rdtypes.Nameserver) string {
-	str := []string{}
-	for _, n := range ns {
-		str = append(str, aws.ToString(n.Name))
-	}
-	return strings.Join(str, ",")
-}
 func nsRecordsToString(rs rtypes.ResourceRecordSet) string {
 	str := []string{}
 	for _, n := range rs.ResourceRecords {

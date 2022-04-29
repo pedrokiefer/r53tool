@@ -26,7 +26,9 @@ func init() {
 }
 
 func (a *checkZoneApp) Run(ctx context.Context) error {
-	a.routeManager = dns.NewRouteManager(ctx, a.Profile)
+	a.routeManager = dns.NewRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{
+		NoWait: noWait,
+	})
 
 	if a.Domain != "" {
 		zone, err := a.routeManager.GetHostedZone(ctx, a.Domain)
@@ -97,6 +99,7 @@ func newCheckZoneCmd() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "check-zone [-d domain | -a] profile",
 		Short: "Check if a zone exists",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			a.Profile = args[0]
 			return a.Run(cmd.Context())

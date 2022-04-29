@@ -5,6 +5,7 @@ import "github.com/spf13/cobra"
 var (
 	//flags
 	dryRun bool
+	noWait bool
 
 	rootCmd = newRootCmd()
 )
@@ -18,5 +19,6 @@ func newRootCmd() *cobra.Command {
 	}
 	f := c.PersistentFlags()
 	f.BoolVar(&dryRun, "dry", false, "Dry run")
+	f.BoolVar(&noWait, "no-wait", false, "Don't wait for changes to propagate")
 	return c
 }

@@ -23,8 +23,12 @@ func init() {
 }
 
 func (a *copyApp) Run(ctx context.Context) error {
-	srcService := dns.NewRouteManager(ctx, a.SourceProfile)
-	dstService := dns.NewRouteManager(ctx, a.DestinationProfile)
+	srcService := dns.NewRouteManager(ctx, a.SourceProfile, &dns.RouteManagerOptions{
+		NoWait: noWait,
+	})
+	dstService := dns.NewRouteManager(ctx, a.DestinationProfile, &dns.RouteManagerOptions{
+		NoWait: noWait,
+	})
 
 	zone, err := srcService.GetHostedZone(ctx, a.Domain)
 	if err != nil {
