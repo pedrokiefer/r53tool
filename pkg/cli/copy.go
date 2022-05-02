@@ -61,7 +61,7 @@ func (a *copyApp) Run(ctx context.Context) error {
 		dstZoneID := aws.ToString(zone.Id)
 
 		if len(changes) > 0 {
-			changeInfo, err := dstService.UpdateRecords(ctx, a.SourceProfile, dstZoneID, changes)
+			changeInfo, err := dstService.UpdateRecords(ctx, "Importing ALL records from "+a.SourceProfile, dstZoneID, changes)
 			if err != nil {
 				return err
 			}

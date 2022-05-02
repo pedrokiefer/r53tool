@@ -172,6 +172,50 @@ func (r *RouteManager) GetOrCreateZone(ctx context.Context, domain string) (rtyp
 	return zone, nil
 }
 
+type Tag struct {
+	Name  string
+	Value string
+}
+
+func (r *RouteManager) GetZoneTags(ctx context.Context, zoneID string) ([]Tag, error) {
+	t, err := r.cli.ListTagsForResource(ctx, &route53.ListTagsForResourceInput{
+		ResourceId:   aws.String(zoneID),
+		ResourceType: rtypes.TagResourceTypeHostedzone,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	tags := []Tag{}
+	for _, tag := range t.ResourceTagSet.Tags {
+		tags = append(tags, Tag{
+			Name:  aws.ToString(tag.Key),
+			Value: aws.ToString(tag.Value),
+		})
+	}
+	return tags, nil
+}
+
+func (r *RouteManager) UpsertTags(ctx context.Context, zoneID string, tags []Tag) error {
+	_, err := r.cli.ChangeTagsForResource(ctx, &route53.ChangeTagsForResourceInput{
+		ResourceId:   aws.String(zoneID),
+		ResourceType: rtypes.TagResourceTypeHostedzone,
+		AddTags:      toAwsTags(tags),
+	})
+	return err
+}
+
+func toAwsTags(tags []Tag) []rtypes.Tag {
+	awsTags := []rtypes.Tag{}
+	for _, tag := range tags {
+		awsTags = append(awsTags, rtypes.Tag{
+			Key:   aws.String(tag.Name),
+			Value: aws.String(tag.Value),
+		})
+	}
+	return awsTags
+}
+
 func (r *RouteManager) GetResourceRecords(ctx context.Context, zoneId string) ([]rtypes.ResourceRecordSet, error) {
 	params := &route53.ListResourceRecordSetsInput{
 		HostedZoneId: aws.String(zoneId),
@@ -285,12 +329,12 @@ func (r *RouteManager) CreateChanges(domain string, recordSets []rtypes.Resource
 
 }
 
-func (r *RouteManager) UpdateRecords(ctx context.Context, sourceProfile, zoneId string, changes []rtypes.Change) (*rtypes.ChangeInfo, error) {
+func (r *RouteManager) UpdateRecords(ctx context.Context, comment, zoneId string, changes []rtypes.Change) (*rtypes.ChangeInfo, error) {
 	params := &route53.ChangeResourceRecordSetsInput{
 		HostedZoneId: aws.String(zoneId),
 		ChangeBatch: &rtypes.ChangeBatch{
 			Changes: changes,
-			Comment: aws.String("Importing ALL records from " + sourceProfile),
+			Comment: aws.String(comment),
 		},
 	}
 	resp, err := r.cli.ChangeResourceRecordSets(ctx, params)
