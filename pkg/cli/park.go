@@ -22,8 +22,12 @@ type parkApp struct {
 	IPSv4 []rtypes.ResourceRecord
 	IPSv6 []rtypes.ResourceRecord
 
+	Hostname string
+	ZoneID   string
+
 	Domain     string
 	AllDomains bool
+	Alias      bool
 	Force      bool
 
 	service *dns.RouteManager
@@ -164,6 +168,18 @@ func (a *parkApp) createChanges(fqdn string) []rtypes.Change {
 		},
 	}
 
+	if a.Alias {
+		changes = append(changes, rtypes.Change{
+			Action: rtypes.ChangeActionUpsert,
+			ResourceRecordSet: &rtypes.ResourceRecordSet{
+				Name:        aws.String(fqdn),
+				Type:        rtypes.RRTypeA,
+				AliasTarget: &rtypes.AliasTarget{HostedZoneId: aws.String(a.ZoneID), DNSName: aws.String(a.Hostname)},
+			},
+		})
+		return changes
+	}
+
 	if len(a.IPSv4) > 0 {
 		changes = append(changes, rtypes.Change{
 			Action: rtypes.ChangeActionUpsert,
@@ -213,20 +229,28 @@ func newParkCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			a.Profile = args[0]
 
-			for _, v := range args[1:] {
-				ip, err := netaddr.ParseIP(v)
-				if err != nil {
-					return err
-				}
+			if !a.Alias {
+				for _, v := range args[1:] {
+					ip, err := netaddr.ParseIP(v)
+					if err != nil {
+						return err
+					}
 
-				r := rtypes.ResourceRecord{
-					Value: aws.String(ip.String()),
+					r := rtypes.ResourceRecord{
+						Value: aws.String(ip.String()),
+					}
+					if ip.Is4() {
+						a.IPSv4 = append(a.IPSv4, r)
+					} else {
+						a.IPSv6 = append(a.IPSv6, r)
+					}
 				}
-				if ip.Is4() {
-					a.IPSv4 = append(a.IPSv4, r)
-				} else {
-					a.IPSv6 = append(a.IPSv6, r)
+			} else {
+				if len(args) < 2 {
+					return fmt.Errorf("alias requires a hostname and zoneID")
 				}
+				a.Hostname = args[1]
+				a.ZoneID = args[2]
 			}
 
 			return a.Run(cmd.Context())
@@ -238,6 +262,7 @@ func newParkCommand() *cobra.Command {
 	f := c.Flags()
 	f.BoolVar(&a.Force, "force", false, "Force park")
 	f.BoolVar(&a.AllDomains, "a", true, "Check all domains")
+	f.BoolVar(&a.Alias, "alias", true, "Use alias for parked domains: <hostname> <zoneId>")
 	f.StringVar(&a.Domain, "d", "", "Check a specific domain")
 	c.MarkFlagsMutuallyExclusive("a", "d")
 	return c

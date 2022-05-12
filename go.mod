@@ -13,6 +13,7 @@ require (
 	github.com/miekg/dns v1.1.48
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v0.0.0-20220428022752-4f0facbcee0a
+	inet.af/netaddr v0.0.0-20211027220019-c74959edd3b6
 )
 
 require (
@@ -35,5 +36,4 @@ require (
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
 	golang.org/x/tools v0.1.6-0.20210726203631-07bc1bf47fb2 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	inet.af/netaddr v0.0.0-20211027220019-c74959edd3b6 // indirect
 )

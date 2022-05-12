@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -178,8 +179,15 @@ type Tag struct {
 }
 
 func (r *RouteManager) GetZoneTags(ctx context.Context, zoneID string) ([]Tag, error) {
+
+	resourceId := zoneID
+	if strings.Contains(zoneID, "/") {
+		s := strings.Split(zoneID, "/")
+		resourceId = s[len(s)-1]
+	}
+
 	t, err := r.cli.ListTagsForResource(ctx, &route53.ListTagsForResourceInput{
-		ResourceId:   aws.String(zoneID),
+		ResourceId:   aws.String(resourceId),
 		ResourceType: rtypes.TagResourceTypeHostedzone,
 	})
 	if err != nil {
@@ -197,8 +205,14 @@ func (r *RouteManager) GetZoneTags(ctx context.Context, zoneID string) ([]Tag, e
 }
 
 func (r *RouteManager) UpsertTags(ctx context.Context, zoneID string, tags []Tag) error {
+	resourceId := zoneID
+	if strings.Contains(zoneID, "/") {
+		s := strings.Split(zoneID, "/")
+		resourceId = s[len(s)-1]
+	}
+
 	_, err := r.cli.ChangeTagsForResource(ctx, &route53.ChangeTagsForResourceInput{
-		ResourceId:   aws.String(zoneID),
+		ResourceId:   aws.String(resourceId),
 		ResourceType: rtypes.TagResourceTypeHostedzone,
 		AddTags:      toAwsTags(tags),
 	})
