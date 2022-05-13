@@ -131,6 +131,7 @@ func (a *parkApp) parkZone(ctx context.Context, zone rtypes.HostedZone) error {
 		}
 	}
 
+	log.Printf("Parking %s...\n", zoneName)
 	changes := a.createChanges(aws.ToString(zone.Name))
 
 	info, err := a.service.UpdateRecords(ctx, "parking "+zoneName, zoneID, changes)
@@ -149,6 +150,7 @@ func (a *parkApp) parkZone(ctx context.Context, zone rtypes.HostedZone) error {
 			return err
 		}
 	}
+	log.Printf("Parked %s\n", zoneName)
 
 	return nil
 }
