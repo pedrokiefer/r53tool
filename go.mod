@@ -9,6 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/route53domains v1.14.6
 	github.com/aws/aws-sdk-go-v2/service/sts v1.18.7
 	github.com/aws/smithy-go v1.13.5
+	github.com/fatih/color v1.15.0
 	github.com/go-ping/ping v1.1.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/miekg/dns v1.1.53
@@ -31,6 +32,8 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect

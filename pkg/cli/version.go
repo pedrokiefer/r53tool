@@ -16,6 +16,6 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of r53tool",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("r53tool version %\n", versionStr)
+		fmt.Printf("r53tool version %s\n", versionStr)
 	},
 }
