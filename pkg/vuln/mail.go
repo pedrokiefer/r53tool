@@ -7,7 +7,7 @@ import (
 	rtypes "github.com/aws/aws-sdk-go-v2/service/route53/types"
 )
 
-func MailCheck(ctx context.Context, zone string, rs []rtypes.ResourceRecordSet) {
+func MailCheck(ctx context.Context, f *Findings, rs []rtypes.ResourceRecordSet) {
 	mx := findByType(rs, rtypes.RRTypeMx)
 	if len(mx) == 0 {
 		return

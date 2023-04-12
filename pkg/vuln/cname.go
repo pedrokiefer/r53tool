@@ -10,7 +10,7 @@ import (
 	"github.com/pedrokiefer/route53copy/pkg/dig"
 )
 
-func checkCNameExists(ctx context.Context, zone string, rs rtypes.ResourceRecordSet) {
+func checkCNameExists(ctx context.Context, f *Findings, rs rtypes.ResourceRecordSet) {
 	if rs.Type != rtypes.RRTypeCname {
 		return
 	}
@@ -28,6 +28,7 @@ func checkCNameExists(ctx context.Context, zone string, rs rtypes.ResourceRecord
 	var derr *dig.ResolveError
 	if errors.As(err, &derr) {
 		if derr.Type == "NXDOMAIN" {
+			f.MisconfigRecords = append(f.MisconfigRecords, MisConfigRRFromAWS(rs, "CNAME points to missing name"))
 			log.Printf("%s CNAME %s points to missing name %s\n", MISCONFIG, name, dst)
 		}
 	}
