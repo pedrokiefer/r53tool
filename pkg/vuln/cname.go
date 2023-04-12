@@ -33,3 +33,26 @@ func checkCNameExists(ctx context.Context, f *Findings, rs rtypes.ResourceRecord
 		}
 	}
 }
+
+func checkAliasExists(ctx context.Context, f *Findings, rs rtypes.ResourceRecordSet) {
+	if rs.Type != rtypes.RRTypeA {
+		return
+	}
+	if rs.AliasTarget == nil {
+		return
+	}
+	name := aws.ToString(rs.Name)
+	dst := aws.ToString(rs.AliasTarget.DNSName)
+	err := dig.Resolve(ctx, dst, "A")
+	if err == nil {
+		return
+	}
+
+	var derr *dig.ResolveError
+	if errors.As(err, &derr) {
+		if derr.Type == "NXDOMAIN" {
+			f.MisconfigRecords = append(f.MisconfigRecords, MisConfigRRFromAWS(rs, "A with Alias points to missing name"))
+			log.Printf("%s A with Alias %s points to missing name %s\n", MISCONFIG, name, dst)
+		}
+	}
+}

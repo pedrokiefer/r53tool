@@ -206,6 +206,7 @@ var subDomainTakeoverChecks = []domainCheck{
 	checkCnameS3,
 	checkAliasS3,
 	checkCNameExists,
+	checkAliasExists,
 }
 
 func SubDomainTakeoverCheck(ctx context.Context, f *Findings, record rtypes.ResourceRecordSet) {
