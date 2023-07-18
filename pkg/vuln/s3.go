@@ -21,7 +21,7 @@ var WhiteBold = color.New(color.FgWhite, color.Bold)
 var MISCONFIG = color.YellowString("[MISCONFIG]")
 var VULN = color.RedString("[VULN]")
 
-var cli = http.Client{
+var cli = &http.Client{
 	Timeout: 3 * time.Second,
 }
 
@@ -67,7 +67,7 @@ func valueInBody(b io.ReadCloser, v string) bool {
 }
 
 func checkNoSuchBucket(ctx context.Context, name string) (bool, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://"+name, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+name, nil)
 	if err != nil {
 		return false, err
 	}
@@ -164,12 +164,13 @@ func checkCnameElasticBeanStalk(ctx context.Context, f *Findings, record rtypes.
 }
 
 func checkCnameS3(ctx context.Context, f *Findings, record rtypes.ResourceRecordSet) {
-	if record.Type == rtypes.RRTypeCname &&
-		len(record.ResourceRecords) >= 1 &&
-		(strings.HasSuffix(aws.ToString(record.ResourceRecords[0].Value), "s3.amazonaws.com") ||
-			strings.Contains(aws.ToString(record.ResourceRecords[0].Value), ".s3-website.")) {
+	if record.Type != rtypes.RRTypeCname || len(record.ResourceRecords) < 1 {
+		return
+	}
+	dst := aws.ToString(record.ResourceRecords[0].Value)
+	if (strings.HasSuffix(dst, "amazonaws.com") && strings.Contains(dst, "s3")) ||
+		strings.Contains(dst, ".s3-website") {
 		name := aws.ToString(record.Name)
-		dst := aws.ToString(record.ResourceRecords[0].Value)
 		nok, err := checkNoSuchBucket(ctx, dst)
 		if err != nil {
 			checkError(err, "a CNAME", "S3", name, f, record)
@@ -182,11 +183,13 @@ func checkCnameS3(ctx context.Context, f *Findings, record rtypes.ResourceRecord
 }
 
 func checkAliasS3(ctx context.Context, f *Findings, record rtypes.ResourceRecordSet) {
-	if record.AliasTarget != nil &&
-		(strings.HasSuffix(aws.ToString(record.AliasTarget.DNSName), "s3.amazonaws.com") ||
-			strings.Contains(aws.ToString(record.AliasTarget.DNSName), ".s3-website.")) {
+	if record.AliasTarget == nil {
+		return
+	}
+	dst := aws.ToString(record.AliasTarget.DNSName)
+	if (strings.HasSuffix(dst, "amazonaws.com") && strings.Contains(dst, "s3")) ||
+		strings.Contains(dst, ".s3-website") {
 		name := aws.ToString(record.Name)
-		dst := aws.ToString(record.AliasTarget.DNSName)
 		nok, err := checkNoSuchBucket(ctx, dst)
 		if err != nil {
 			checkError(err, "an alias", "S3", name, f, record)
