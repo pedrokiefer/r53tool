@@ -5,19 +5,26 @@ on:
     tags:
       - "v*.*.*"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: "1.25.x"
+
+      - name: UPX
+        run: |
+          go install github.com/upyun/upx/cmd/upx@master
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6

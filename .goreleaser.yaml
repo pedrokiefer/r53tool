@@ -18,12 +18,7 @@ builds:
       - -s -w -X github.com/pedrokiefer/route53copy/cmd.Version={{.Version}} -X github.com/pedrokiefer/route53copy/cmd.Commit={{.Commit}} -X github.com/pedrokiefer/route53copy/cmd.BuildDate={{ .CommitDate }}
 
 archives:
-  - name_template: |
-      {{- $arch := .Arch -}}
-      {{- if eq .Arch "amd64" -}}{{ $arch = "x86_64" }}
-      {{- else if eq .Arch "386" -}}{{ $arch = "i386" }}
-      {{- end -}}
-      {{ .ProjectName }}_{{ .Version }}_{{ title .Os }}_{{ $arch }}
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ title .Os }}_{{ .Arch }}"
 
 checksum:
   name_template: "checksums.txt"
@@ -55,3 +50,8 @@ changelog:
       order: 20
     - title: Other work
       order: 999
+
+upx:
+  - enabled: true
+    compress: best
+    lzma: true
