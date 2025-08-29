@@ -4,12 +4,11 @@ import (
 	"context"
 	"time"
 
-	//nolint:staticcheck // go-ping/ping is deprecated upstream; kept for current functionality until replacement is chosen
-	"github.com/go-ping/ping"
+	probing "github.com/prometheus-community/pro-bing"
 )
 
 func Check(ctx context.Context, host string) (bool, error) {
-	pinger, err := ping.NewPinger(host)
+	pinger, err := probing.NewPinger(host)
 	if err != nil {
 		return false, err
 	}

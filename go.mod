@@ -11,11 +11,11 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.38.2
 	github.com/aws/smithy-go v1.23.0
 	github.com/fatih/color v1.18.0
-	github.com/go-ping/ping v1.2.0
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/manifoldco/promptui v0.9.0
 	github.com/miekg/dns v1.1.68
 	github.com/olekukonko/tablewriter v1.0.9
+	github.com/prometheus-community/pro-bing v0.7.0
 	github.com/rs/dnscache v0.0.0-20230804202142-fc85eb664529
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.11.1
