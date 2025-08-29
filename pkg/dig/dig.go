@@ -31,7 +31,25 @@ func (e ResolveError) Error() string {
 	return fmt.Sprintf("failed to get nameservers for: %s", e.Domain)
 }
 
+// DNSResolver defines an interface for DNS queries used by this package.
+// It enables overriding in tests.
+type DNSResolver interface {
+	Resolve(ctx context.Context, domain string, t string) error
+}
+
+// CurrentResolver is the pluggable resolver used by Resolve.
+// It can be overridden in tests.
+var CurrentResolver DNSResolver = realResolver{}
+
+// Resolve is the public entry point which delegates to CurrentResolver.
 func Resolve(ctx context.Context, domain string, t string) error {
+	return CurrentResolver.Resolve(ctx, domain, t)
+}
+
+// realResolver contains the production implementation of DNS resolution.
+type realResolver struct{}
+
+func (realResolver) Resolve(ctx context.Context, domain string, t string) error {
 	_t, ok := dns.StringToType[t]
 	if !ok {
 		return fmt.Errorf("invalid type: %s", t)

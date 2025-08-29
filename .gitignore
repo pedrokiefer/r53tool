@@ -1,2 +1,4 @@
 dist/
 
+coverage.html
+coverage.out

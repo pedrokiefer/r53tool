@@ -76,7 +76,7 @@ func Fetch(ctx context.Context, host string) (bool, error) {
 
 	_, err = cli.Do(dr)
 	if err != nil {
-		//log.Printf("Error fetching %s: %+v", url, err)
+		// log.Printf("Error fetching %s: %+v", url, err)
 		return false, err
 	}
 
@@ -88,7 +88,7 @@ func Fetch(ctx context.Context, host string) (bool, error) {
 				return false, err
 			}
 		} else {
-			//log.Printf("Error fetching %s: %+v", url, err)
+			// log.Printf("Error fetching %s: %+v", url, err)
 			return false, err
 		}
 	}
@@ -102,6 +102,6 @@ func CheckTCP(ctx context.Context, host string, port int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 	return true, nil
 }

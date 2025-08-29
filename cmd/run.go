@@ -3,17 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/spf13/cobra"
 )
 
 func Run(command *cobra.Command) {
-	rand.Seed(time.Now().UnixNano())
 	command.Version = fmt.Sprintf("%s, commit: %s, built: %s", Version, Commit, BuildDate)
 	err := run(command)
 	if err != nil {

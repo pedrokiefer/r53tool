@@ -39,7 +39,7 @@ func (e *HostedZoneNotFound) Error() string {
 
 func NewRouteManager(ctx context.Context, profile string, rmo *RouteManagerOptions) *RouteManager {
 	if r := os.Getenv("AWS_REGION"); r == "" {
-		os.Setenv("AWS_REGION", "us-east-1")
+		_ = os.Setenv("AWS_REGION", "us-east-1")
 	}
 	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithSharedConfigProfile(profile),

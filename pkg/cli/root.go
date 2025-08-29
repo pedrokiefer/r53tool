@@ -3,7 +3,7 @@ package cli
 import "github.com/spf13/cobra"
 
 var (
-	//flags
+	// flags
 	dryRun bool
 	noWait bool
 

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -58,8 +57,8 @@ func checkError(err error, t, k string, name string, f *Findings, record rtypes.
 }
 
 func valueInBody(b io.ReadCloser, v string) bool {
-	defer b.Close()
-	body, err := ioutil.ReadAll(b)
+	defer func() { _ = b.Close() }()
+	body, err := io.ReadAll(b)
 	if err != nil {
 		return false
 	}

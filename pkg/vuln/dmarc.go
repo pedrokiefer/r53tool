@@ -44,11 +44,16 @@ func dmarcScan(dmarc string) []string {
 		tag := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
 
-		if tag == "p" && (value != "reject" && value != "quarantine") {
-			result = append(result, fmt.Sprintf("%s DMARC policy is %s, which allows spoofed emails\n", VULN, value))
-		} else if tag == "sp" && (value != "reject" && value != "quarantine") {
-			result = append(result, fmt.Sprintf("%s DMARC subdomain policy is %s, which allows spoofed emails\n", VULN, value))
-		} else if tag == "pct" {
+		switch tag {
+		case "p":
+			if value != "reject" && value != "quarantine" {
+				result = append(result, fmt.Sprintf("%s DMARC policy is %s, which allows spoofed emails\n", VULN, value))
+			}
+		case "sp":
+			if value != "reject" && value != "quarantine" {
+				result = append(result, fmt.Sprintf("%s DMARC subdomain policy is %s, which allows spoofed emails\n", VULN, value))
+			}
+		case "pct":
 			v, err := strconv.Atoi(value)
 			if err != nil {
 				result = append(result, fmt.Sprintf("%s DMARC policy pct has invalid value: %s\n", VULN, value))

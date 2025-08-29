@@ -32,7 +32,7 @@ func WriteBindZoneFile(outputPath string, zone string, records []rtypes.Resource
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// Write the zone file
 	if err := prettyzone.WriteZoneFileRC(f, recs, origin, defaultTTL, comments); err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	//nolint:staticcheck // go-ping/ping is deprecated upstream; kept for current functionality until replacement is chosen
 	"github.com/go-ping/ping"
 )
 

@@ -132,7 +132,7 @@ func checkRDS(ctx context.Context, host string) (bool, error) {
 		}
 	}
 
-	//log.Printf("%s RDS Check: %t %t", host, mv, pv)
+	// log.Printf("%s RDS Check: %t %t", host, mv, pv)
 
 	return pv || mv, nil
 }
@@ -144,7 +144,7 @@ func checkCache(ctx context.Context, host string) (bool, error) {
 			return false, err
 		}
 	}
-	//log.Printf("%s ElastiCache Check: %t", host, rv)
+	// log.Printf("%s ElastiCache Check: %t", host, rv)
 	return rv, nil
 }
 
@@ -153,11 +153,12 @@ func (a *cleanupZoneApp) checkHost(ctx context.Context, host string) (bool, erro
 		{CheckFunction: ping.Check},
 	}
 
-	if strings.Contains(host, "rds") {
+	switch {
+	case strings.Contains(host, "rds"):
 		checkers = append(checkers, &check{CheckFunction: checkRDS})
-	} else if strings.Contains(host, "cache.amazonaws") {
+	case strings.Contains(host, "cache.amazonaws"):
 		checkers = append(checkers, &check{CheckFunction: checkCache})
-	} else {
+	default:
 		checkers = append(checkers, &check{CheckFunction: fetch.Fetch})
 	}
 

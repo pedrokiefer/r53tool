@@ -28,7 +28,7 @@ type Transfer struct {
 
 func NewDomainManager(ctx context.Context, profile string) (*DomainManager, error) {
 	if r := os.Getenv("AWS_REGION"); r == "" {
-		os.Setenv("AWS_REGION", "us-east-1")
+		_ = os.Setenv("AWS_REGION", "us-east-1")
 	}
 	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithSharedConfigProfile(profile))
@@ -211,7 +211,7 @@ func (w *GetOperationDetailWaiter) WaitForOutput(ctx context.Context, params *ro
 	}
 
 	if options.MinDelay > options.MaxDelay {
-		return nil, fmt.Errorf("minimum waiter delay %v must be lesser than or equal to maximum waiter delay of %v.", options.MinDelay, options.MaxDelay)
+		return nil, fmt.Errorf("minimum waiter delay %v must be lesser than or equal to maximum waiter delay of %v", options.MinDelay, options.MaxDelay)
 	}
 
 	ctx, cancelFn := context.WithTimeout(ctx, maxWaitDur)

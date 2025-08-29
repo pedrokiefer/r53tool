@@ -20,8 +20,8 @@ func PrintResourceRecords(records []rtypes.ResourceRecordSet) {
 				values += "\n"
 			}
 		}
-		table.Append([]string{aws.ToString(record.Name), string(record.Type), values})
+		_ = table.Append([]string{aws.ToString(record.Name), string(record.Type), values})
 	}
 
-	table.Render()
+	_ = table.Render()
 }
