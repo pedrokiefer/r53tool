@@ -10,7 +10,7 @@ import (
 
 func PrintResourceRecords(records []rtypes.ResourceRecordSet) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Name", "Type", "Value"})
+	table.Header([]string{"Name", "Type", "Value"})
 
 	for _, record := range records {
 		values := ""

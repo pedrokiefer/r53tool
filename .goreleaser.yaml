@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -16,18 +18,18 @@ builds:
       - -s -w -X github.com/pedrokiefer/route53copy/cmd.Version={{.Version}} -X github.com/pedrokiefer/route53copy/cmd.Commit={{.Commit}} -X github.com/pedrokiefer/route53copy/cmd.BuildDate={{ .CommitDate }}
 
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+  - name_template: |
+      {{- $arch := .Arch -}}
+      {{- if eq .Arch "amd64" -}}{{ $arch = "x86_64" }}
+      {{- else if eq .Arch "386" -}}{{ $arch = "i386" }}
+      {{- end -}}
+      {{ .ProjectName }}_{{ .Version }}_{{ title .Os }}_{{ $arch }}
 
 checksum:
   name_template: "checksums.txt"
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 
 changelog:
   sort: asc
