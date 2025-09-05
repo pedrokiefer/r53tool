@@ -30,7 +30,7 @@ type parkApp struct {
 	Alias      bool
 	Force      bool
 
-	service *dns.RouteManager
+	service RouteManagerAPI
 }
 
 func init() {
@@ -38,7 +38,7 @@ func init() {
 }
 
 func (a *parkApp) Run(ctx context.Context) error {
-	a.service = dns.NewRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{
+	a.service = newRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{
 		NoWait: noWait,
 	})
 	log.Printf("Parking domains in %s...\n", a.Profile)
@@ -248,7 +248,7 @@ func newParkCommand() *cobra.Command {
 					}
 				}
 			} else {
-				if len(args) < 2 {
+				if len(args) < 3 {
 					return fmt.Errorf("alias requires a hostname and zoneID")
 				}
 				a.Hostname = args[1]

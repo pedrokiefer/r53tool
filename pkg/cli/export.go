@@ -22,7 +22,7 @@ func init() {
 }
 
 func (a *exportApp) Run(ctx context.Context) error {
-	manager := dns.NewRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{NoWait: noWait})
+	manager := newRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{NoWait: noWait})
 
 	zone, err := manager.GetHostedZone(ctx, a.Zone)
 	if err != nil {
@@ -46,7 +46,7 @@ func (a *exportApp) Run(ctx context.Context) error {
 		return nil
 	}
 
-	if err := dns.WriteBindZoneFile(a.Output, aws.ToString(zone.Name), records); err != nil {
+	if err := writeBindZoneFile(a.Output, aws.ToString(zone.Name), records); err != nil {
 		return err
 	}
 	log.Printf("Zone file written to %s\n", a.Output)

@@ -13,7 +13,12 @@ import (
 	"github.com/rs/dnscache"
 )
 
-var r = &dnscache.Resolver{}
+// hostResolver abstracts DNS lookups for testing.
+type hostResolver interface {
+	LookupHost(ctx context.Context, host string) ([]string, error)
+}
+
+var r hostResolver = &dnscache.Resolver{}
 
 func lookupWithRetry(ctx context.Context, host string, retries int) (addrs []string, err error) {
 	for i := 0; i < retries; i++ {

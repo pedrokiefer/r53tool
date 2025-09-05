@@ -10,7 +10,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	rtypes "github.com/aws/aws-sdk-go-v2/service/route53/types"
-	"github.com/manifoldco/promptui"
 	"github.com/pedrokiefer/route53copy/pkg/dig"
 	"github.com/pedrokiefer/route53copy/pkg/dns"
 	"github.com/spf13/cobra"
@@ -27,7 +26,7 @@ func init() {
 }
 
 func (a *deleteApp) Run(ctx context.Context) error {
-	srcManager := dns.NewRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{
+	srcManager := newRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{
 		NoWait: noWait,
 	})
 
@@ -42,7 +41,7 @@ func (a *deleteApp) Run(ctx context.Context) error {
 		return err
 	}
 
-	ns, err := dig.GetNameserversFor(a.Domain)
+	ns, err := getNameserversFor(a.Domain)
 	if err != nil {
 		var nsr *dig.NSRecordNotFound
 		if errors.As(err, &nsr) {
@@ -74,12 +73,7 @@ func (a *deleteApp) Run(ctx context.Context) error {
 		return nil
 	}
 
-	prompt := promptui.Prompt{
-		Label:     "Delete all records?",
-		IsConfirm: true,
-	}
-
-	result, err := prompt.Run()
+	result, err := promptConfirm("Delete all records?", true)
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
 		return nil

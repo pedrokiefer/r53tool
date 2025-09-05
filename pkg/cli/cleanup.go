@@ -18,7 +18,7 @@ type cleanupZoneApp struct {
 	Profile string
 	Domain  string
 
-	routeManager *dns.RouteManager
+	routeManager RouteManagerAPI
 }
 
 func init() {
@@ -27,7 +27,7 @@ func init() {
 
 func (a *cleanupZoneApp) Run(ctx context.Context) error {
 
-	a.routeManager = dns.NewRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{
+	a.routeManager = newRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{
 		NoWait: noWait,
 	})
 

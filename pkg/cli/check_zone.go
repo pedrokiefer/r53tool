@@ -18,7 +18,7 @@ type checkZoneApp struct {
 	Domain     string
 	AllDomains bool
 
-	routeManager *dns.RouteManager
+	routeManager RouteManagerAPI
 }
 
 func init() {
@@ -26,7 +26,7 @@ func init() {
 }
 
 func (a *checkZoneApp) Run(ctx context.Context) error {
-	a.routeManager = dns.NewRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{
+	a.routeManager = newRouteManager(ctx, a.Profile, &dns.RouteManagerOptions{
 		NoWait: noWait,
 	})
 
@@ -67,7 +67,7 @@ func (a *checkZoneApp) checkZone(ctx context.Context, zone rtypes.HostedZone) er
 
 	log.Printf("Checking %s ...\n", domain)
 
-	digNS, err := dig.GetNameserversFor(domain)
+	digNS, err := getNameserversFor(domain)
 	if err != nil {
 		log.Printf("no NS records found for %s zone %s", domain, zoneID)
 		return err

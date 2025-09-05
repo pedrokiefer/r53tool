@@ -23,10 +23,10 @@ func init() {
 }
 
 func (a *copyApp) Run(ctx context.Context) error {
-	srcService := dns.NewRouteManager(ctx, a.SourceProfile, &dns.RouteManagerOptions{
+	srcService := newRouteManager(ctx, a.SourceProfile, &dns.RouteManagerOptions{
 		NoWait: noWait,
 	})
-	dstService := dns.NewRouteManager(ctx, a.DestinationProfile, &dns.RouteManagerOptions{
+	dstService := newRouteManager(ctx, a.DestinationProfile, &dns.RouteManagerOptions{
 		NoWait: noWait,
 	})
 

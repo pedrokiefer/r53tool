@@ -46,6 +46,15 @@ func Resolve(ctx context.Context, domain string, t string) error {
 	return CurrentResolver.Resolve(ctx, domain, t)
 }
 
+// RealResolverForTest returns a new instance of the production resolver for test restoration.
+func RealResolverForTest() DNSResolver { return realResolver{} }
+
+// test seams for GetNameserversFor
+var loadClientConfig = func() (*dns.ClientConfig, error) { return dns.ClientConfigFromFile("/etc/resolv.conf") }
+var exchangeFunc = func(c *dns.Client, m *dns.Msg, addr string) (*dns.Msg, time.Duration, error) {
+	return c.Exchange(m, addr)
+}
+
 // realResolver contains the production implementation of DNS resolution.
 type realResolver struct{}
 
@@ -104,11 +113,9 @@ func (realResolver) Resolve(ctx context.Context, domain string, t string) error 
 }
 
 func GetNameserversFor(domain string) ([]string, error) {
-	config, _ := dns.ClientConfigFromFile("/etc/resolv.conf")
+	config, _ := loadClientConfig()
 
-	c := &dns.Client{
-		Timeout: 15 * time.Second,
-	}
+	c := &dns.Client{Timeout: 15 * time.Second}
 
 	m := &dns.Msg{}
 	m.SetQuestion(dns.Fqdn(domain), dns.TypeNS)
@@ -125,7 +132,7 @@ func GetNameserversFor(domain string) ([]string, error) {
 			return nil, fmt.Errorf("failed to get nameservers for: %s", domain)
 		}
 
-		r, _, err = c.Exchange(m, net.JoinHostPort(config.Servers[0], config.Port))
+		r, _, err = exchangeFunc(c, m, net.JoinHostPort(config.Servers[0], config.Port))
 		if err != nil {
 			var ne net.Error
 			if errors.As(err, &ne) && ne.Timeout() {
